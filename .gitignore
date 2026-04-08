@@ -36,3 +36,12 @@ __pycache__/
 x64/
 
 .DS_Store
+/.idea/fw_vnpy_ctp.iml
+/.idea/MarsCodeWorkspaceAppSettings.xml
+/.idea/misc.xml
+/.idea/modules.xml
+/.idea/inspectionProfiles/profiles_settings.xml
+/.idea/inspectionProfiles/Project_Default.xml
+/.idea/vcs.xml
+/vnpy_ctp/api/vnctpmd.cp310-win_amd64.pyd
+/vnpy_ctp/api/vnctptd.cp310-win_amd64.pyd

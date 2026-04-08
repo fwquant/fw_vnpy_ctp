@@ -11,7 +11,8 @@ def main():
 
     event_engine = EventEngine()
     main_engine = MainEngine(event_engine)
-    main_engine.add_gateway(CtpGateway)
+    main_engine.add_gateway(gateway_class=CtpGateway, gateway_name="CTP")
+    main_engine.add_gateway(gateway_class=CtpGateway, gateway_name="CTP-simnow")
 
     main_window = MainWindow(main_engine, event_engine)
     main_window.showMaximized()

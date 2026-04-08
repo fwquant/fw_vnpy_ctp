@@ -27,7 +27,7 @@ from .gateway import CtpGateway
 
 
 __all__ = ["CtpGateway"]
-
+__version__ = "6.7.11"
 
 try:
     __version__ = metadata.version("vnpy_ctp")
