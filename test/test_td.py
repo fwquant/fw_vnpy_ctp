@@ -4,7 +4,7 @@ from collections.abc import Generator
 
 import pytest
 
-from vnpy_ctp.api import (
+from fw_vnpy_ctp.api import (
     TdApi,
     THOST_FTDC_OPT_LimitPrice,
     THOST_FTDC_TC_GFD,

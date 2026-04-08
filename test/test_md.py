@@ -4,7 +4,7 @@ from collections.abc import Generator
 
 import pytest
 
-from vnpy_ctp.api import (
+from fw_vnpy_ctp.api import (
     MdApi
 )
 

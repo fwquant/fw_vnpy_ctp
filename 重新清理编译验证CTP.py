@@ -48,10 +48,10 @@ def clean_build_files():
 
     dirs_to_clean = [
         'build',
-        'vnpy_ctp.egg-info',
-        'vnpy_ctp/api/__pycache__',
-        'vnpy_ctp/__pycache__',
-        'vnpy_ctp/gateway/__pycache__',
+        'fw_vnpy_ctp.egg-info',
+        'fw_vnpy_ctp/api/__pycache__',
+        'fw_vnpy_ctp/__pycache__',
+        'fw_vnpy_ctp/gateway/__pycache__',
     ]
 
     for dir_name in dirs_to_clean:
@@ -60,7 +60,7 @@ def clean_build_files():
             print_info(f"删除目录: {dir_name}")
 
     # 删除所有 .pyd 文件
-    pyd_files = glob.glob("vnpy_ctp/api/*.pyd")
+    pyd_files = glob.glob("fw_vnpy_ctp/api/*.pyd")
     for f in pyd_files:
         os.remove(f)
         print_info(f"删除文件: {os.path.basename(f)}")
@@ -172,7 +172,7 @@ def copy_pyd_files():
     if os.path.exists('build'):
         for item in os.listdir('build'):
             if item.startswith('lib.win-amd64-cpython'):
-                build_dirs.append(os.path.join('build', item, 'vnpy_ctp', 'api'))
+                build_dirs.append(os.path.join('build', item, 'fw_vnpy_ctp', 'api'))
 
     if not build_dirs:
         print_error("未找到编译输出文件")
@@ -184,7 +184,7 @@ def copy_pyd_files():
             for file in os.listdir(src_dir):
                 if file.endswith('.pyd'):
                     src = os.path.join(src_dir, file)
-                    dst = os.path.join('vnpy_ctp/api', file)
+                    dst = os.path.join('fw_vnpy_ctp/api', file)
                     shutil.copy2(src, dst)
                     print_info(f"复制: {file}")
                     copied = True
@@ -199,7 +199,7 @@ def copy_pyd_files():
 
 def get_ctp_version():
     """从头文件中获取 CTP API 版本"""
-    version_file = "vnpy_ctp/api/include/ThostFtdcUserApiStruct.h"
+    version_file = "fw_vnpy_ctp/api/include/ThostFtdcUserApiStruct.h"
     if not os.path.exists(version_file):
         return None
 
@@ -232,7 +232,7 @@ def get_ctp_version():
 
 def get_ctp_version():
     """从头文件中获取 CTP API 版本"""
-    version_file = "vnpy_ctp/api/include/ThostFtdcUserApiStruct.h"
+    version_file = "fw_vnpy_ctp/api/include/ThostFtdcUserApiStruct.h"
     if not os.path.exists(version_file):
         return None
 
@@ -274,28 +274,28 @@ def verify_import():
     sys.path.insert(0, current_dir)
 
     # 移除可能干扰的模块
-    modules_to_remove = ['_vnpy_ctp_editable_loader', 'vnpy_ctp', 'vnpy_ctp.api']
+    modules_to_remove = ['_fw_vnpy_ctp_editable_loader', 'fw_vnpy_ctp', 'fw_vnpy_ctp.api']
     for module in modules_to_remove:
         if module in sys.modules:
             del sys.modules[module]
 
     try:
         # 注意：是 TdApi 不是 TradeApi
-        from vnpy_ctp.api import MdApi, TdApi
-        import vnpy_ctp
+        from fw_vnpy_ctp.api import MdApi, TdApi
+        import fw_vnpy_ctp
 
-        print_success("MdApi 导入成功")
-        print_success("TdApi 导入成功")
+        print_success("✅ MdApi 导入成功")
+        print_success("✅ TdApi 导入成功")
 
         # 获取版本信息
         print(f"\n{'=' * 50}")
-        print("模块详细信息:")
+        print("📦 模块详细信息:")
         print(f"{'=' * 50}")
 
         # 1. 包版本
         try:
-            version = vnpy_ctp.__version__
-            print(f"  包版本: {version}")
+            version = fw_vnpy_ctp.__version__
+            print(f"  📌 包版本: {version}")
         except AttributeError:
             # 尝试从 setup.py 读取
             setup_file = "setup.py"
@@ -304,16 +304,16 @@ def verify_import():
                     content = f.read()
                     match = re.search(r"version=['\"]([^'\"]+)['\"]", content)
                     if match:
-                        print(f"  包版本: {match.group(1)}")
+                        print(f"  📌 包版本: {match.group(1)}")
                     else:
-                        print(f"  包版本: 未知")
+                        print(f"  ⚠️ 包版本: 未知")
             else:
-                print(f"  包版本: 未知")
+                print(f"  ⚠️ 包版本: 未知")
 
         # 2. CTP API 版本
         ctp_version = get_ctp_version()
         if ctp_version:
-            print(f"  CTP API 版本: {ctp_version}")
+            print(f"  📌 CTP API 版本: {ctp_version}")
 
         # 3. 尝试获取 API 运行时版本
         try:
@@ -321,86 +321,86 @@ def verify_import():
             md_api = MdApi()
             if hasattr(md_api, 'GetApiVersion'):
                 api_version = md_api.GetApiVersion()
-                print(f"  API 运行时版本: {api_version}")
+                print(f"  📌 API 运行时版本: {api_version}")
         except Exception as e:
             pass
 
         # 4. 模块文件路径
-        print(f"\n  模块路径:")
+        print(f"\n  📁 模块路径:")
         print(f"    MdApi: {MdApi.__module__}")
         print(f"    TdApi: {TdApi.__module__}")
 
         # 5. 查找扩展文件详情
         import glob
-        pyd_files = glob.glob("vnpy_ctp/api/*.pyd") + glob.glob("vnpy_ctp/api/*.so")
+        pyd_files = glob.glob("fw_vnpy_ctp/api/*.pyd") + glob.glob("fw_vnpy_ctp/api/*.so")
         if pyd_files:
-            print(f"\n  扩展文件:")
+            print(f"\n  🔧 扩展文件:")
             for f in sorted(pyd_files):
                 file_stat = os.stat(f)
                 file_size = file_stat.st_size / 1024
                 mod_time = datetime.fromtimestamp(file_stat.st_mtime)
                 mod_time_str = mod_time.strftime("%Y-%m-%d %H:%M:%S")
-                print(f"    {os.path.basename(f)}")
+                print(f"    📄 {os.path.basename(f)}")
                 print(f"      大小: {file_size:.1f} KB")
                 print(f"      修改: {mod_time_str}")
 
         # 6. 系统信息
-        print(f"\n  系统信息:")
+        print(f"\n  💻 系统信息:")
         print(f"    Python: {sys.version.split()[0]}")
         print(f"    平台: {sys.platform}")
         if sys.platform == 'win32':
             print(f"    架构: {'64位' if sys.maxsize > 2 ** 32 else '32位'}")
 
         # 7. 依赖库检查
-        print(f"\n  依赖检查:")
+        print(f"\n  📚 依赖检查:")
 
         # pybind11
         try:
             import pybind11
-            print(f"    ✓ pybind11: {pybind11.__version__}")
+            print(f"    ✅ pybind11: {pybind11.__version__}")
         except ImportError:
-            print(f"    ✗ pybind11: 未安装")
+            print(f"    ❌ pybind11: 未安装")
 
         # vnpy
         try:
             import vnpy
-            print(f"    ✓ vnpy: {vnpy.__version__}")
+            print(f"    ✅ vnpy: {vnpy.__version__}")
         except ImportError:
-            print(f"    ✗ vnpy: 未安装")
+            print(f"    ❌ vnpy: 未安装")
 
         # numpy (可选)
         try:
             import numpy
-            print(f"    ✓ numpy: {numpy.__version__}")
+            print(f"    ✅ numpy: {numpy.__version__}")
         except ImportError:
-            print(f"    - numpy: 未安装 (可选)")
+            print(f"    ⚠️ numpy: 未安装 (可选)")
 
         print(f"{'=' * 50}")
 
         return True
 
     except ImportError as e:
-        print_error(f"导入失败: {e}")
+        print_error(f"❌ 导入失败: {e}")
 
         # 检查文件是否存在（注意不要重复导入 glob）
         import glob
-        pyd_files = glob.glob("vnpy_ctp/api/*.pyd")
+        pyd_files = glob.glob("fw_vnpy_ctp/api/*.pyd")
         if pyd_files:
-            print(f"\n找到 .pyd 文件: {[os.path.basename(f) for f in pyd_files]}")
+            print(f"\n📁 找到 .pyd 文件: {[os.path.basename(f) for f in pyd_files]}")
         else:
-            print("\n未找到 .pyd 文件，编译可能未完成")
+            print("\n⚠️ 未找到 .pyd 文件，编译可能未完成")
 
         # 检查 __init__.py 内容
-        init_file = "vnpy_ctp/api/__init__.py"
+        init_file = "fw_vnpy_ctp/api/__init__.py"
         if os.path.exists(init_file):
-            print(f"\n检查 {init_file}:")
+            print(f"\n📄 检查 {init_file}:")
             with open(init_file, 'r', encoding='utf-8') as f:
                 content = f.read()
                 print(f"  {content.strip()}")
 
-        print("\n可能原因:")
+        print("\n🔍 可能原因:")
         print("  1. 编译未完成或失败")
-        print("  2. __init__.py 中未正确导出 TdApi (注意是 TdApi 不是 TdApi)")
+        print("  2. __init__.py 中未正确导出 TdApi")
         print("  3. DLL 文件缺失")
         print("  4. Python 版本不匹配")
         return False
@@ -483,7 +483,7 @@ def do_full_build():
     if success:
         print_success("CTP 模块已就绪！")
         print("\n现在可以:")
-        print("  python -c \"from vnpy_ctp.api import MdApi, TdApi\"")
+        print("  python -c \"from fw_vnpy_ctp.api import MdApi, TdApi\"")
     else:
         print_error("构建失败，请检查错误信息")
         print("\n常见问题:")
