@@ -75,7 +75,7 @@ def compile_extensions():
 
     # 使用 Popen 实时显示输出，过滤乱码
     process = subprocess.Popen(
-        [sys.executable, "setup.py", "build_ext", "--inplace"],
+        [sys.executable, "setup_config.py", "build_ext", "--inplace"],
         stdout=subprocess.PIPE,
         stderr=subprocess.STDOUT,
         bufsize=1,
@@ -297,8 +297,8 @@ def verify_import():
             version = fw_vnpy_ctp.__version__
             print(f"  📌 包版本: {version}")
         except AttributeError:
-            # 尝试从 setup.py 读取
-            setup_file = "setup.py"
+            # 尝试从 setup_config.py 读取
+            setup_file = "setup_config.py"
             if os.path.exists(setup_file):
                 with open(setup_file, 'r', encoding='utf-8') as f:
                     content = f.read()
@@ -520,6 +520,8 @@ def do_verify_only():
 
 def main():
     """主函数"""
+    import os
+    print("当前工作目录:", os.getcwd())
     args = sys.argv[1:]
 
     # 无参数时进入交互式菜单

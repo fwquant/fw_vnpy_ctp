@@ -2,7 +2,10 @@
 //
 
 #include "vnctpmd.h"
-
+// 1. 头文件必须是 6.7.10
+#include "ThostFtdcMdApi.h"  // 相对路径
+#include "ThostFtdcUserApiStruct.h"
+#include "ThostFtdcUserApiDataType.h"
 
 ///-------------------------------------------------------------------------------------
 ///C++的回调函数将数据保存到队列中
@@ -360,8 +363,16 @@ void MdApi::processRspUserLogin(Task *task)
 		data["GFEXTime"] = toUtf(task_data->GFEXTime);
 		data["LoginDRIdentityID"] = task_data->LoginDRIdentityID;
 		data["UserDRIdentityID"] = task_data->UserDRIdentityID;
-		data["LastLoginTime"] = toUtf(task_data->LastLoginTime);
-		data["ReserveInfo"] = toUtf(task_data->ReserveInfo);
+
+
+
+        //old code
+//        data["LastLoginTime"] =toUtf(task_data->LastLoginTime);
+//        data["ReserveInfo"] = toUtf(task_data->ReserveInfo);
+        // 20260409 rem tjw      6.7.10 及更早版本没有这些字段，跳过
+        data["LastLoginTime"] = "";
+        data["ReserveInfo"] = "";
+
 		delete task_data;
 	}
 	dict error;
@@ -611,7 +622,11 @@ void MdApi::processRtnForQuoteRsp(Task *task)
 
 void MdApi::createFtdcMdApi(string pszFlowPath, bool bIsProductionMode)
 {
-	this->api = CThostFtdcMdApi::CreateFtdcMdApi(pszFlowPath.c_str(), false, false, bIsProductionMode);
+    //old code
+    //	this->api = CThostFtdcMdApi::CreateFtdcMdApi(pszFlowPath.c_str(), false, false, bIsProductionMode);
+	//20260409 add tjw 6.7.10 版本不支持 4-5 个参数
+	this->api = CThostFtdcMdApi::CreateFtdcMdApi(pszFlowPath.c_str());
+
 	this->api->RegisterSpi(this);
 };
 

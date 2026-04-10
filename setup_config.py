@@ -3,7 +3,7 @@
 
 """
 CTP 扩展模块安装文件
-用于：pip install -e . 或 python setup.py install
+用于：pip install -e . 或 python setup_config.py install
 """
 
 from setuptools import setup, Extension
@@ -16,25 +16,28 @@ ext_modules = [
         'fw_vnpy_ctp.api.vnctpmd',
         sources=['fw_vnpy_ctp/api/vnctp/vnctpmd/vnctpmd.cpp'],
         include_dirs=[
-            'fw_vnpy_ctp/api/include',
+            'fw_vnpy_ctp/api/include/ctp',      # CTP 头文件目录
+            'fw_vnpy_ctp/api/include',          # 备用目录
             'fw_vnpy_ctp/api/vnctp',
             pybind11.get_include(),
         ],
         library_dirs=['fw_vnpy_ctp/api/libs'],
         libraries=['thostmduserapi_se'],
-        extra_compile_args=['/MT', '/utf-8'] if os.name == 'nt' else [],  # 添加 /utf-8
+        extra_compile_args=['/MT', '/utf-8'] if os.name == 'nt' else [],
+        # 注意：不要添加 runtime_library_dirs，MSVC 不支持
     ),
     Extension(
         'fw_vnpy_ctp.api.vnctptd',
         sources=['fw_vnpy_ctp/api/vnctp/vnctptd/vnctptd.cpp'],
         include_dirs=[
+            'fw_vnpy_ctp/api/include/ctp',
             'fw_vnpy_ctp/api/include',
             'fw_vnpy_ctp/api/vnctp',
             pybind11.get_include(),
         ],
         library_dirs=['fw_vnpy_ctp/api/libs'],
         libraries=['thosttraderapi_se'],
-        extra_compile_args=['/MT', '/utf-8'] if os.name == 'nt' else [],  # 添加 /utf-8
+        extra_compile_args=['/MT', '/utf-8'] if os.name == 'nt' else [],
     ),
 ]
 
