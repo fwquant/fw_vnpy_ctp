@@ -45,3 +45,4 @@ x64/
 /.idea/vcs.xml
 /vnpy_ctp/api/vnctpmd.cp310-win_amd64.pyd
 /vnpy_ctp/api/vnctptd.cp310-win_amd64.pyd
+.idea
