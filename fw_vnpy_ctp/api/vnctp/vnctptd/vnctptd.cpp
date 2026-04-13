@@ -10783,9 +10783,15 @@ void TdApi::processRspQryOffsetSetting(Task* task)
 void TdApi::createFtdcTraderApi(string pszFlowPath, bool bIsProductionMode)
 {
     //old code
-//    this->api = CThostFtdcTraderApi::CreateFtdcTraderApi(pszFlowPath.c_str(), bIsProductionMode);
+    this->api = CThostFtdcTraderApi::CreateFtdcTraderApi(pszFlowPath.c_str(), bIsProductionMode);
     // 20260409 add tjw      6.7.10 兼容形式
-    this->api = CThostFtdcTraderApi::CreateFtdcTraderApi(pszFlowPath.c_str());
+//    this->api = CThostFtdcTraderApi::CreateFtdcTraderApi(pszFlowPath.c_str());
+
+    //162 银河 能连通，第二个参数需要为FALSE
+//    this->api = CThostFtdcTraderApi::CreateFtdcTraderApi(pszFlowPath.c_str(), false);
+
+
+
     this->api->RegisterSpi(this);
 };
 

@@ -1,13 +1,11 @@
-import os
-import sys
+from fw_vnpy_ctp.api import MdApi, TdApi
 
-# 添加 DLL 路径
-api_path = r"D:\GIT\github\fwquant\fw_vnpy_ctp\fw_vnpy_ctp\api"
-os.add_dll_directory(api_path)
+# 测试创建 API 实例
+md_api = MdApi()
+td_api = TdApi()
 
-# 直接导入测试
-import vnctpmd
-print("✓ vnctpmd 导入成功")
+# 测试获取 API 版本（如果支持）
+if hasattr(md_api, 'GetApiVersion'):
+    print(f"API 版本: {md_api.GetApiVersion()}")
 
-from fw_vnpy_ctp.api import MdApi
-print("✓ MdApi 导入成功")
+print("✅ API 实例创建成功！")

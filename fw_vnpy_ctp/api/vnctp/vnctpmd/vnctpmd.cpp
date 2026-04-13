@@ -623,9 +623,9 @@ void MdApi::processRtnForQuoteRsp(Task *task)
 void MdApi::createFtdcMdApi(string pszFlowPath, bool bIsProductionMode)
 {
     //old code
-    //	this->api = CThostFtdcMdApi::CreateFtdcMdApi(pszFlowPath.c_str(), false, false, bIsProductionMode);
-	//20260409 add tjw 6.7.10 版本不支持 4-5 个参数
-	this->api = CThostFtdcMdApi::CreateFtdcMdApi(pszFlowPath.c_str());
+    this->api = CThostFtdcMdApi::CreateFtdcMdApi(pszFlowPath.c_str(), false, false, bIsProductionMode);
+	//20260413 modi tjw 6.7.11  银河期货 162能连接成功 最后一个参数需要为 bIsProductionMode FALSE
+//	this->api = CThostFtdcMdApi::CreateFtdcMdApi(pszFlowPath.c_str(), false, false, false);
 
 	this->api->RegisterSpi(this);
 };

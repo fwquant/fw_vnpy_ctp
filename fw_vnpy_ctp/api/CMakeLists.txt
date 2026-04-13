@@ -1,0 +1,68 @@
+cmake_minimum_required(VERSION 4.0)
+project(api)
+
+set(CMAKE_CXX_STANDARD 14)
+
+include_directories(generator)
+include_directories(include)
+include_directories(include/ctp)
+include_directories(include/mac)
+include_directories(include/mac/ctp)
+include_directories(thostmduserapi_se.framework)
+include_directories(thostmduserapi_se.framework/Versions)
+include_directories(thostmduserapi_se.framework/Versions/A)
+include_directories(thostmduserapi_se.framework/Versions/A/Headers)
+include_directories(thosttraderapi_se.framework)
+include_directories(thosttraderapi_se.framework/Versions)
+include_directories(thosttraderapi_se.framework/Versions/A)
+include_directories(thosttraderapi_se.framework/Versions/A/Headers)
+include_directories(vnctp)
+include_directories(vnctp/vnctpmd)
+include_directories(vnctp/vnctptd)
+
+add_executable(api
+        generator/ctp_md_header_define.h
+        generator/ctp_md_header_function.h
+        generator/ctp_md_header_on.h
+        generator/ctp_md_header_process.h
+        generator/ctp_md_source_function.cpp
+        generator/ctp_md_source_module.cpp
+        generator/ctp_md_source_on.cpp
+        generator/ctp_md_source_process.cpp
+        generator/ctp_md_source_switch.cpp
+        generator/ctp_md_source_task.cpp
+        generator/ctp_td_header_define.h
+        generator/ctp_td_header_function.h
+        generator/ctp_td_header_on.h
+        generator/ctp_td_header_process.h
+        generator/ctp_td_source_function.cpp
+        generator/ctp_td_source_module.cpp
+        generator/ctp_td_source_on.cpp
+        generator/ctp_td_source_process.cpp
+        generator/ctp_td_source_switch.cpp
+        generator/ctp_td_source_task.cpp
+        include/ctp/ThostFtdcMdApi.h
+        include/ctp/ThostFtdcTraderApi.h
+        include/ctp/ThostFtdcUserApiDataType.h
+        include/ctp/ThostFtdcUserApiStruct.h
+        include/mac/ctp/ThostFtdcMdApi.h
+        include/mac/ctp/ThostFtdcTraderApi.h
+        include/mac/ctp/ThostFtdcUserApiDataType.h
+        include/mac/ctp/ThostFtdcUserApiStruct.h
+        thostmduserapi_se.framework/Versions/A/Headers/ThostFtdcMdApi.h
+        thostmduserapi_se.framework/Versions/A/Headers/ThostFtdcUserApiDataType.h
+        thostmduserapi_se.framework/Versions/A/Headers/ThostFtdcUserApiStruct.h
+        thosttraderapi_se.framework/Versions/A/Headers/ThostFtdcTraderApi.h
+        thosttraderapi_se.framework/Versions/A/Headers/ThostFtdcUserApiDataType.h
+        thosttraderapi_se.framework/Versions/A/Headers/ThostFtdcUserApiStruct.h
+        vnctp/vnctpmd/dllmain.cpp
+        vnctp/vnctpmd/stdafx.cpp
+        vnctp/vnctpmd/stdafx.h
+        vnctp/vnctpmd/vnctpmd.cpp
+        vnctp/vnctpmd/vnctpmd.h
+        vnctp/vnctptd/dllmain.cpp
+        vnctp/vnctptd/stdafx.cpp
+        vnctp/vnctptd/stdafx.h
+        vnctp/vnctptd/vnctptd.cpp
+        vnctp/vnctptd/vnctptd.h
+        vnctp/vnctp.h)
