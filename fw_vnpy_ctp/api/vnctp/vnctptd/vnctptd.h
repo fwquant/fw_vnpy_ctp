@@ -5,7 +5,7 @@
 
 #include "vnctp.h"
 #include "pybind11/pybind11.h"
-#include "ctp/ThostFtdcTraderApi.h"
+#include "ThostFtdcTraderApi.h"
 
 
 using namespace pybind11;
@@ -683,28 +683,44 @@ public:
 	virtual void OnRspQryInvestorPortfSetting(CThostFtdcInvestorPortfSettingField* pInvestorPortfSetting, CThostFtdcRspInfoField* pRspInfo, int nRequestID, bool bIsLast);
 
 	///投资者申报费阶梯收取记录查询响应
+	#ifndef __APPLE__
 	virtual void OnRspQryInvestorInfoCommRec(CThostFtdcInvestorInfoCommRecField* pInvestorInfoCommRec, CThostFtdcRspInfoField* pRspInfo, int nRequestID, bool bIsLast);
+	#endif
 
 	///组合腿信息查询响应
+	#ifndef __APPLE__
 	virtual void OnRspQryCombLeg(CThostFtdcCombLegField* pCombLeg, CThostFtdcRspInfoField* pRspInfo, int nRequestID, bool bIsLast);
+	#endif
 
 	///对冲设置请求响应
+	#ifndef __APPLE__
 	virtual void OnRspOffsetSetting(CThostFtdcInputOffsetSettingField* pInputOffsetSetting, CThostFtdcRspInfoField* pRspInfo, int nRequestID, bool bIsLast);
+	#endif
 
 	///对冲设置撤销请求响应
+	#ifndef __APPLE__
 	virtual void OnRspCancelOffsetSetting(CThostFtdcInputOffsetSettingField* pInputOffsetSetting, CThostFtdcRspInfoField* pRspInfo, int nRequestID, bool bIsLast);
+	#endif
 
 	///对冲设置通知
+	#ifndef __APPLE__
 	virtual void OnRtnOffsetSetting(CThostFtdcOffsetSettingField* pOffsetSetting);
+	#endif
 
 	///对冲设置错误回报
+	#ifndef __APPLE__
 	virtual void OnErrRtnOffsetSetting(CThostFtdcInputOffsetSettingField* pInputOffsetSetting, CThostFtdcRspInfoField* pRspInfo);
+	#endif
 
 	///对冲设置撤销错误回报
+	#ifndef __APPLE__
 	virtual void OnErrRtnCancelOffsetSetting(CThostFtdcCancelOffsetSettingField* pCancelOffsetSetting, CThostFtdcRspInfoField* pRspInfo);
+	#endif
 
 	///投资者对冲设置查询响应
+	#ifndef __APPLE__
 	virtual void OnRspQryOffsetSetting(CThostFtdcOffsetSettingField* pOffsetSetting, CThostFtdcRspInfoField* pRspInfo, int nRequestID, bool bIsLast);
+	#endif
     //-------------------------------------------------------------------------------------
     //task：任务
     //-------------------------------------------------------------------------------------

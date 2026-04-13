@@ -14,7 +14,6 @@ import glob
 import re
 from datetime import datetime
 
-
 def print_step(step, message):
     """打印步骤信息"""
     print(f"\n[ {step} ] {message}")
@@ -59,9 +58,9 @@ def clean_build_files():
             shutil.rmtree(dir_name)
             print_info(f"删除目录: {dir_name}")
 
-    # 删除所有 .pyd 文件
-    pyd_files = glob.glob("fw_vnpy_ctp/api/*.pyd")
-    for f in pyd_files:
+    # 删除所有扩展文件
+    extension_files = glob.glob("fw_vnpy_ctp/api/*.pyd") + glob.glob("fw_vnpy_ctp/api/*.so")
+    for f in extension_files:
         os.remove(f)
         print_info(f"删除文件: {os.path.basename(f)}")
 
@@ -73,9 +72,9 @@ def compile_extensions():
     """编译扩展模块"""
     print_step("2/4", "编译 C++ 扩展模块")
 
-    # 使用 Popen 实时显示输出，过滤乱码
+    # 使用 Popen 实时显示输出，不过滤错误信息
     process = subprocess.Popen(
-        [sys.executable, "setup_config.py", "build_ext", "--inplace"],
+        [sys.executable, "setup_config.py", "build_ext", "--inplace", "-v"],
         stdout=subprocess.PIPE,
         stderr=subprocess.STDOUT,
         bufsize=1,
@@ -100,20 +99,20 @@ def compile_extensions():
         if line is None:
             line = line_bytes.decode('gbk', errors='ignore')
 
-        # 过滤掉乱码行（包含常见乱码字符的行）
-        garbage_patterns = [
-            '鏂囦欢', '寮', '鍛戒护', 'Warning', 'warning C',
-            '姝ｅ湪', '鍒涘缓', '鐢熸垚', '杩炴帴', '宸插紑濮'
-        ]
+        # 不过滤任何行，以便查看完整的错误信息
+        # garbage_patterns = [
+        #     '鏂囦欢', '寮', '鍛戒护', 'Warning', 'warning C',
+        #     '姝ｅ湪', '鍒涘缓', '鐢熸垚', '杩炴帴', '宸插紑濮'
+        # ]
 
-        skip_line = False
-        for pattern in garbage_patterns:
-            if pattern in line:
-                skip_line = True
-                break
+        # skip_line = False
+        # for pattern in garbage_patterns:
+        #     if pattern in line:
+        #         skip_line = True
+        #         break
 
-        if skip_line:
-            continue
+        # if skip_line:
+        #     continue
 
         # 提取有用的信息
         line = line.strip()
@@ -164,14 +163,15 @@ def compile_extensions():
 
 
 def copy_pyd_files():
-    """复制编译好的 .pyd 文件"""
+    """复制编译好的扩展文件"""
     print_step("3/4", "安装扩展模块")
 
     # 查找编译输出目录
     build_dirs = []
     if os.path.exists('build'):
         for item in os.listdir('build'):
-            if item.startswith('lib.win-amd64-cpython'):
+            # 支持 Windows 和 macOS/Linux 的编译输出目录
+            if item.startswith('lib.'):
                 build_dirs.append(os.path.join('build', item, 'fw_vnpy_ctp', 'api'))
 
     if not build_dirs:
@@ -182,7 +182,8 @@ def copy_pyd_files():
     for src_dir in build_dirs:
         if os.path.exists(src_dir):
             for file in os.listdir(src_dir):
-                if file.endswith('.pyd'):
+                # 支持 .pyd (Windows) 和 .so (macOS/Linux) 文件
+                if file.endswith('.pyd') or file.endswith('.so'):
                     src = os.path.join(src_dir, file)
                     dst = os.path.join('fw_vnpy_ctp/api', file)
                     shutil.copy2(src, dst)
@@ -193,74 +194,47 @@ def copy_pyd_files():
         print_success("安装完成")
         return True
     else:
-        print_error("未找到 .pyd 文件")
+        print_error("未找到扩展文件")
         return False
 
 
 def get_ctp_version():
     """从头文件中获取 CTP API 版本"""
-    version_file = "fw_vnpy_ctp/api/include/ThostFtdcUserApiStruct.h"
-    if not os.path.exists(version_file):
-        return None
+    # 尝试不同路径的头文件
+    version_files = [
+        "fw_vnpy_ctp/api/include/ctp/ThostFtdcUserApiStruct.h",
+        "fw_vnpy_ctp/api/include/mac/ctp/ThostFtdcUserApiStruct.h",
+        "fw_vnpy_ctp/api/include/ThostFtdcUserApiStruct.h"
+    ]
+    
+    for version_file in version_files:
+        if os.path.exists(version_file):
+            try:
+                with open(version_file, 'r', encoding='gbk', errors='ignore') as f:
+                    content = f.read()
 
-    try:
-        with open(version_file, 'r', encoding='gbk', errors='ignore') as f:
-            content = f.read()
+                    # 查找版本号
+                    patterns = [
+                        r'#define\s+USER_API_VERSION\s+"([^"]+)"',
+                        r'#define\s+API_VERSION\s+"([^"]+)"',
+                        r'USER_API_VERSION\s+"([^"]+)"',
+                    ]
 
-            # 查找版本号
-            patterns = [
-                r'#define\s+USER_API_VERSION\s+"([^"]+)"',
-                r'#define\s+API_VERSION\s+"([^"]+)"',
-                r'USER_API_VERSION\s+"([^"]+)"',
-            ]
+                    for pattern in patterns:
+                        match = re.search(pattern, content)
+                        if match:
+                            return match.group(1)
 
-            for pattern in patterns:
-                match = re.search(pattern, content)
-                if match:
-                    return match.group(1)
+                    # 如果找不到，尝试查找日期版本
+                    date_pattern = r'(\d{8})'
+                    dates = re.findall(date_pattern, content)
+                    if dates:
+                        return f"CTP API ({dates[0]})"
 
-            # 如果找不到，尝试查找日期版本
-            date_pattern = r'(\d{8})'
-            dates = re.findall(date_pattern, content)
-            if dates:
-                return f"CTP API ({dates[0]})"
-
-        return "未知版本"
-    except:
-        return "无法读取"
-
-
-def get_ctp_version():
-    """从头文件中获取 CTP API 版本"""
-    version_file = "fw_vnpy_ctp/api/include/ThostFtdcUserApiStruct.h"
-    if not os.path.exists(version_file):
-        return None
-
-    try:
-        with open(version_file, 'r', encoding='gbk', errors='ignore') as f:
-            content = f.read()
-
-            # 查找版本号
-            patterns = [
-                r'#define\s+USER_API_VERSION\s+"([^"]+)"',
-                r'#define\s+API_VERSION\s+"([^"]+)"',
-                r'USER_API_VERSION\s+"([^"]+)"',
-            ]
-
-            for pattern in patterns:
-                match = re.search(pattern, content)
-                if match:
-                    return match.group(1)
-
-            # 如果找不到，尝试查找日期版本
-            date_pattern = r'(\d{8})'
-            dates = re.findall(date_pattern, content)
-            if dates:
-                return f"CTP API ({dates[0]})"
-
-        return "未知版本"
-    except:
-        return "无法读取"
+                return "未知版本"
+            except:
+                continue
+    return "无法读取"
 
 
 def verify_import():
@@ -384,11 +358,11 @@ def verify_import():
 
         # 检查文件是否存在（注意不要重复导入 glob）
         import glob
-        pyd_files = glob.glob("fw_vnpy_ctp/api/*.pyd")
-        if pyd_files:
-            print(f"\n📁 找到 .pyd 文件: {[os.path.basename(f) for f in pyd_files]}")
+        extension_files = glob.glob("fw_vnpy_ctp/api/*.pyd") + glob.glob("fw_vnpy_ctp/api/*.so")
+        if extension_files:
+            print(f"\n📁 找到扩展文件: {[os.path.basename(f) for f in extension_files]}")
         else:
-            print("\n⚠️ 未找到 .pyd 文件，编译可能未完成")
+            print("\n⚠️ 未找到扩展文件，编译可能未完成")
 
         # 检查 __init__.py 内容
         init_file = "fw_vnpy_ctp/api/__init__.py"
@@ -411,13 +385,13 @@ def show_help():
     print_title("CTP 扩展模块编译工具")
     print("""
 使用方法:
-    python build.py --all       清理、编译、验证（推荐）
-    python build.py --clean     仅清理
-    python build.py --build     仅编译
-    python build.py --verify    仅验证
+    python install.py --all       清理、编译、验证（推荐）
+    python install.py --clean     仅清理
+    python install.py --build     仅编译
+    python install.py --verify    仅验证
 
 交互式菜单:
-    python build.py             显示交互式菜单
+    python install.py             显示交互式菜单
 
 注意:
     - 需要已安装 Visual Studio Build Tools

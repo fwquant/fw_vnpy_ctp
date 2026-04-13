@@ -361,8 +361,10 @@ void MdApi::processRspUserLogin(Task *task)
 		data["INETime"] = toUtf(task_data->INETime);
 		data["SysVersion"] = toUtf(task_data->SysVersion);
 		data["GFEXTime"] = toUtf(task_data->GFEXTime);
+		#ifndef __APPLE__
 		data["LoginDRIdentityID"] = task_data->LoginDRIdentityID;
 		data["UserDRIdentityID"] = task_data->UserDRIdentityID;
+		#endif
 
 
 
@@ -622,8 +624,14 @@ void MdApi::processRtnForQuoteRsp(Task *task)
 
 void MdApi::createFtdcMdApi(string pszFlowPath, bool bIsProductionMode)
 {
-    //old code
-    this->api = CThostFtdcMdApi::CreateFtdcMdApi(pszFlowPath.c_str(), false, false, bIsProductionMode);
+    // 根据不同平台调用不同版本的 CreateFtdcMdApi 函数
+    #ifndef __APPLE__
+        // Windows 和 Linux 版本，4 个参数
+        this->api = CThostFtdcMdApi::CreateFtdcMdApi(pszFlowPath.c_str(), false, false, bIsProductionMode);
+    #else
+        // macOS 版本，3 个参数
+        this->api = CThostFtdcMdApi::CreateFtdcMdApi(pszFlowPath.c_str(), false, false);
+    #endif
 	//20260413 modi tjw 6.7.11  银河期货 162能连接成功 最后一个参数需要为 bIsProductionMode FALSE
 //	this->api = CThostFtdcMdApi::CreateFtdcMdApi(pszFlowPath.c_str(), false, false, false);
 

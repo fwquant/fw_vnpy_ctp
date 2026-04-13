@@ -5,7 +5,7 @@
 
 #include "vnctp.h"
 #include "pybind11/pybind11.h"
-#include "ctp/ThostFtdcMdApi.h"
+#include "ThostFtdcMdApi.h"
 
 
 using namespace pybind11;
